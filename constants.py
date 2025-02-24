@@ -33,6 +33,8 @@ MEMBERS_BUTTON_IMAGE="assets/members_button.png"
 UNDO_BUTTON_IMAGE = "assets/undo_button.png" 
 SOLVE_BUTTON_IMAGE = "assets/hint_button.png" 
 RESTART_BUTTON= "assets/restart_button.png" 
+MENU_BUTTON="assets/menu.png"
+
 
 IMAGE_PATH = [
     "assets/Cloud1.png",
@@ -42,3 +44,24 @@ IMAGE_PATH = [
     "assets/Cloud5.png"
 ]
 
+# New constants for slide functionality
+SLIDE_BUTTON_IMAGE = "assets/slide.png"  # Ensure you have this image
+X_BUTTON_IMAGE = "assets/x.png"         # Ensure you have this image
+NEXT_SLIDE_BUTTON_IMAGE = "assets/next.png"  # Ensure you have this image
+HELP_IMAGES = [
+     "assets/slide1.png",
+     "assets/slide2.png",
+     "assets/slide3.png",
+     "assets/slide4.png",
+     "assets/slide5.png",
+     "assets/slide6.png",
+     "assets/slide7.png",
+     "assets/slide8.png",
+     "assets/slide9.png",
+     "assets/slide10.png",
+     "assets/slide11.png",
+     "assets/slide12.png",
+     "assets/slide13.png",
+
+   
+]
