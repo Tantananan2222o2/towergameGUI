@@ -44,10 +44,10 @@ IMAGE_PATH = [
     "assets/Cloud5.png"
 ]
 
-# New constants for slide functionality
-SLIDE_BUTTON_IMAGE = "assets/slide.png"  # Ensure you have this image
-X_BUTTON_IMAGE = "assets/x.png"         # Ensure you have this image
-NEXT_SLIDE_BUTTON_IMAGE = "assets/next.png"  # Ensure you have this image
+
+SLIDE_BUTTON_IMAGE = "assets/slide.png" 
+X_BUTTON_IMAGE = "assets/x.png"       
+NEXT_SLIDE_BUTTON_IMAGE = "assets/next.png" 
 HELP_IMAGES = [
      "assets/slide1.png",
      "assets/slide2.png",

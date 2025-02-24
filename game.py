@@ -95,20 +95,20 @@ class Game:
         self.menu_button_rect = self.menu_button.get_rect(topleft=(20, 700))
         self.menu_button_clicked = False
 
-        # New slide button and related components
+
         self.slide_button = pygame.transform.scale(pygame.image.load(SLIDE_BUTTON_IMAGE), (90, 90 * 4 // 5))
-        self.slide_button_rect = self.slide_button.get_rect(topleft=(SCREEN_WIDTH - 90, 320))  # Position below restart_button
+        self.slide_button_rect = self.slide_button.get_rect(topleft=(SCREEN_WIDTH - 90, 320))  
         
         self.x_button = pygame.transform.scale(pygame.image.load(X_BUTTON_IMAGE), (20, 20))
-        self.x_button_rect = self.x_button.get_rect(topright=(SCREEN_WIDTH - 150, 100))  # Top-right corner
+        self.x_button_rect = self.x_button.get_rect(topright=(SCREEN_WIDTH - 150, 100)) 
         
         self.next_slide_button = pygame.transform.scale(pygame.image.load(NEXT_SLIDE_BUTTON_IMAGE), (20, 20))
-        self.next_slide_button_rect = self.next_slide_button.get_rect(bottomright=(SCREEN_WIDTH - 150, SCREEN_HEIGHT - 100))  # Bottom-right corner
+        self.next_slide_button_rect = self.next_slide_button.get_rect(bottomright=(SCREEN_WIDTH - 150, SCREEN_HEIGHT - 100))  
         
-        self.help_images = [pygame.transform.scale(pygame.image.load(path), (int(SCREEN_WIDTH * 0.8), int(SCREEN_HEIGHT * 0.8))) for path in HELP_IMAGES]  # Scale slides to 80% of screen
+        self.help_images = [pygame.transform.scale(pygame.image.load(path), (int(SCREEN_WIDTH * 0.8), int(SCREEN_HEIGHT * 0.8))) for path in HELP_IMAGES] 
         
-        self.show_slides = False  # Flag to toggle slide display
-        self.current_slide = 0    # Index of the current slide
+        self.show_slides = False  
+        self.current_slide = 0   
 
 
         
@@ -160,15 +160,15 @@ class Game:
                 exit()
             
             if self.show_slides:
-                # Handle slide-specific events only
+      
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if self.x_button_rect.collidepoint(event.pos):
                         self.show_slides = False
                     elif self.next_slide_button_rect.collidepoint(event.pos):
-                        self.current_slide = (self.current_slide + 1) % len(self.help_images)  # Cycle through slides
+                        self.current_slide = (self.current_slide + 1) % len(self.help_images) 
             else:
-                # Existing event handling
-                if not self.game_started:  # Fixed typo: gamelected -> game_started
+               
+                if not self.game_started: 
                     if event.type == pygame.MOUSEBUTTONDOWN:
                         if self.play_button_rect.collidepoint(event.pos):
                             self.play_button_clicked = True
@@ -181,7 +181,7 @@ class Game:
                             self.show_members = not self.show_members
                     elif event.type == pygame.MOUSEBUTTONUP:
                         if self.play_button_clicked and self.play_button_rect.collidepoint(event.pos):
-                            self.game_started = True  # Fixed typo: gamelected -> game_started
+                            self.game_started = True 
                         self.play_button_clicked = False
                         self.rules_button_clicked = False
                         self.members_button_clicked = False
@@ -189,7 +189,7 @@ class Game:
                     if event.type == pygame.MOUSEBUTTONDOWN:
                         if self.menu_button_rect.collidepoint(event.pos):
                             self.reset_game()
-                            self.game_started = False  # Fixed typo: gamelected -> game_started
+                            self.game_started = False 
                             self.fading_out = False
                             self.fade_alpha = 255
                             self.game_over_fade = False
@@ -206,12 +206,12 @@ class Game:
                         elif self.undo_button_rect.collidepoint(event.pos):
                             self.undo_button_clicked = True
                             self.undo_move()
-                        elif self.solve_button_rect.collidepoint(event.pos):  # Fixed typo: Circle_button_rect -> solve_button_rect
+                        elif self.solve_button_rect.collidepoint(event.pos):  
                             self.solve_button_clicked = True
                             self.start_solving()
                         elif self.slide_button_rect.collidepoint(event.pos):
                             self.show_slides = True
-                            self.current_slide = 0  # Start at the first slide
+                            self.current_slide = 0 
                         elif not self.solving:
                             for peg in self.pegs:
                                 top_disc = peg.get_top_disc()
@@ -224,7 +224,7 @@ class Game:
                                         break
                     elif event.type == pygame.MOUSEBUTTONUP:
                         self.undo_button_clicked = False
-                        self.solve_button_clicked = False  # Fixed typo: Circle_button_clicked -> solve_button_clicked
+                        self.solve_button_clicked = False  
                         self.restart_button_clicked = False
                         if self.held_disc:
                             closest_peg = min(self.pegs, key=lambda p: abs(p.x - self.held_disc.pos[0]))
@@ -302,13 +302,13 @@ class Game:
             disc.falling = False
 
     def draw_metallic(self):
-        if self.warning_message:  # Ensure 'warning_message' is the correct attribute
+        if self.warning_message: 
             font = pygame.font.Font(None, WARNING_FONT_SIZE)
             text = font.render(self.warning_message, True, WARNING_COLOR)
             self.screen.blit(text, WARNING_POSITION)
 
     def update(self):
-        if self.game_started and not self.show_slides:  # Fixed typo: game discernible -> game_started
+        if self.game_started and not self.show_slides: 
             if self.solving:
                 self.execute_next_move()
             for peg in self.pegs:
@@ -328,8 +328,8 @@ class Game:
                 self.game_over_fade = True
             if self.game_over_fade and self.game_over_fade_alpha < 200:
                 self.game_over_fade_alpha += 2
-        # Existing scaling logic for logos...
-        self.logo_scale += self.scale_speed  # Assuming Jogo_scale is intended; consider renaming for clarity
+   
+        self.logo_scale += self.scale_speed 
         if self.logo_scale >= self.max_scale or self.logo_scale <= self.min_scale:
             self.scale_speed = -self.scale_speed
         cc_current_scale = self.logo_scale
@@ -387,7 +387,7 @@ class Game:
                 cloud["speed"] = random.uniform(0.05, 0.5)
             self.screen.blit(cloud["image"], (cloud["x"], cloud["y"]))
 
-        if not self.game_started:  # Fixed typo: gamelected -> game_started
+        if not self.game_started: 
             mouse_pos = pygame.mouse.get_pos()
             self.screen.blit(self.scaled_cc, self.cc_rect.topleft)
             self.screen.blit(self.scaled_hci, self.hci_rect.topleft)
@@ -402,7 +402,7 @@ class Game:
             else:
                 self.screen.blit(self.rules_button, self.rules_button_rect.topleft)
             if self.members_button_rect.collidepoint(mouse_pos):
-                scaled_members = pygame.transform.scale(self.members_button, (88, 77))  # Fixed typo: Numbers_button -> members_button
+                scaled_members = pygame.transform.scale(self.members_button, (88, 77)) 
                 self.screen.blit(scaled_members, self.members_button_rect.topleft)
             else:
                 self.screen.blit(self.members_button, self.members_button_rect.topleft)
@@ -450,7 +450,7 @@ class Game:
                 self.screen.blit(scaled_restart, self.restart_button_rect.topleft)
             else:
                 self.screen.blit(self.restart_button, self.restart_button_rect.topleft)
-            # Draw slide button
+
             if not self.show_slides:
                 if self.slide_button_rect.collidepoint(mouse_pos):
                     scaled_slide = pygame.transform.scale(self.slide_button, (99, 99 * 4 // 5))
@@ -458,10 +458,9 @@ class Game:
                 else:
                     self.screen.blit(self.slide_button, self.slide_button_rect.topleft)
 
-            # Draw slides if active
             if self.show_slides:
                 overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
-                overlay.fill((0, 0, 0, 150))  # Semi-transparent overlay
+                overlay.fill((0, 0, 0, 150))  
                 self.screen.blit(overlay, (0, 0))
                 current_image = self.help_images[self.current_slide]
                 image_rect = current_image.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
@@ -469,8 +468,7 @@ class Game:
                 self.screen.blit(self.x_button, self.x_button_rect)
                 self.screen.blit(self.next_slide_button, self.next_slide_button_rect)
 
-            # Existing UI elements
-            self.draw_metallic()  # Fixed typo: draw follic -> draw_metallic
+            self.draw_metallic()  
             font = pygame.font.Font(None, 36)
             moves_text = font.render(f"Moves: {len(self.move_history)} / {self.min_moves}", True, (255, 255, 255))
             self.screen.blit(moves_text, (10, 10))
