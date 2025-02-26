@@ -1,7 +1,7 @@
 import pygame
 import random
 from sys import exit
-from constants import IMAGE_PATH,SCREEN_WIDTH,SLIDE_BUTTON_IMAGE,X_BUTTON_IMAGE,RIGHT_SLIDE, HELP_IMAGES,SCREEN_HEIGHT,LEFT_SLIDE, GROUND_Y, PEG_POSITIONS, DISC_IMAGE, UNDO_BUTTON_IMAGE,RESTART_BUTTON,MENU_BUTTON, PLAY_BUTTON_IMAGE,MEMBERS_BUTTON_IMAGE, RULES_BUTTON_IMAGE, WARNING_COLOR, WARNING_FONT_SIZE, WARNING_POSITION, SOLVE_BUTTON_IMAGE, base_width, base_height
+from constants import DISC_FLOAT_SPEED,DISC_FLOAT_HEIGHT,IMAGE_PATH,DISC_MOVE_SPEED,SCREEN_WIDTH,SLIDE_BUTTON_IMAGE,X_BUTTON_IMAGE,RIGHT_SLIDE, HELP_IMAGES,SCREEN_HEIGHT,LEFT_SLIDE, GROUND_Y, PEG_POSITIONS, DISC_IMAGE, UNDO_BUTTON_IMAGE,RESTART_BUTTON,MENU_BUTTON, PLAY_BUTTON_IMAGE,MEMBERS_BUTTON_IMAGE, RULES_BUTTON_IMAGE, WARNING_COLOR, WARNING_FONT_SIZE, WARNING_POSITION, SOLVE_BUTTON_IMAGE, base_width, base_height
 from disc import Disc
 from peg import Peg
 
@@ -122,6 +122,11 @@ class Game:
         self.solving = False
         self.last_move_time = 0
         self.move_delay = 1000
+
+        self.moving_disc = None
+        self.move_state = None  # 'lifting', 'moving', 'dropping'
+        self.move_target_x = None
+        self.move_float_y = None
 
 
 
@@ -265,12 +270,16 @@ class Game:
  
 
     def start_solving(self):
-        if all(len(peg.discs) == 0 for peg in self.pegs[1:]):
+        if all(len(peg.discs) == 0 for peg in self.pegs[:-1]):
+            self.solving= False
+        elif all(len(peg.discs) == 0 for peg in self.pegs[1:]):
             self.solution_moves = []
             self.generate_solution()
             self.current_move = 0
             self.solving = True
             self.last_move_time = pygame.time.get_ticks()
+
+        
         else:
             self.warning_message = "Put them on their initial place first"
 
@@ -286,25 +295,63 @@ class Game:
             self.algorithm(n - 1, auxiliary, target, source)
 
     def execute_next_move(self):
-        if self.current_move < len(self.solution_moves):
-            current_time = pygame.time.get_ticks()
-            if current_time - self.last_move_time >= self.move_delay:
-                source_peg_index, target_peg_index = self.solution_moves[self.current_move]
-                source_peg = self.pegs[source_peg_index]
-                target_peg = self.pegs[target_peg_index]
+        current_time = pygame.time.get_ticks()
+    
+        # If we're in the middle of moving a disc, continue the animation
+        if self.moving_disc:
 
-                disc = source_peg.get_top_disc()
-                if disc:
-                    source_peg.remove_disc(disc)
-                    target_peg.add_disc(disc)
-                    disc.peg_x = target_peg.x
-                    stack_height = len(target_peg.discs) - 1
-                    disc.pos[0] = target_peg.x - disc.image.get_width() // 2 + 19
-                    disc.pos[1] = GROUND_Y - (stack_height * 15)
+            if self.move_state == 'lifting':
+                # Lift the disc up
+                if self.moving_disc.pos[1] > self.move_float_y:
+                    self.moving_disc.pos[1] -= DISC_FLOAT_SPEED
+                else:
+                    self.moving_disc.pos[1] = self.move_float_y
+                    self.move_state = 'moving'
+                
+            elif self.move_state == 'moving':
+                # Move horizontally
+                dx = self.move_target_x - self.moving_disc.pos[0]
+                if abs(dx) > DISC_MOVE_SPEED:
+                    self.moving_disc.pos[0] += DISC_MOVE_SPEED if dx > 0 else -DISC_MOVE_SPEED
+                else:
+                    self.moving_disc.pos[0] = self.move_target_x
+                    self.move_state = 'dropping'
+                
+            elif self.move_state == 'dropping':
+                # Drop down
+                if self.moving_disc.pos[1] < self.moving_disc.target_y:
+                    self.moving_disc.pos[1] += DISC_FLOAT_SPEED
+                else:
+                    self.moving_disc.pos[1] = self.moving_disc.target_y
+                    self.moving_disc = None
+                    self.move_state = None
                     self.current_move += 1
                     self.last_move_time = current_time
-        else:
-            self.solving = False 
+    
+        # If we're not currently moving a disc and it's time for the next move
+        elif self.current_move < len(self.solution_moves) and current_time - self.last_move_time >= self.move_delay:
+            source_peg_index, target_peg_index = self.solution_moves[self.current_move]
+            source_peg = self.pegs[source_peg_index]
+            target_peg = self.pegs[target_peg_index]
+
+            disc = source_peg.get_top_disc()
+            if disc:
+                # Initialize the movement animation
+                source_peg.remove_disc(disc)
+                disc.peg_x = target_peg.x
+            
+                # Set up animation parameters
+                stack_height = len(target_peg.discs)
+                disc.target_y = GROUND_Y - (stack_height * 15)
+                self.move_float_y = GROUND_Y - DISC_FLOAT_HEIGHT  # Float height
+                self.move_target_x = target_peg.x - disc.image.get_width() // 2 + 19
+            
+                # Start the animation in 'lifting' state
+                self.moving_disc = disc
+                self.move_state = 'lifting'
+            
+                # Add disc to target peg (it will visually move there)
+                target_peg.add_disc(disc) 
 
     def undo_move(self):
         if self.move_history:
@@ -328,6 +375,8 @@ class Game:
         if self.game_started and not self.show_slides: 
             if self.solving:
                 self.execute_next_move()
+
+              
             for peg in self.pegs:
                 for disc in peg.discs:
                     if disc.falling:
@@ -430,8 +479,7 @@ class Game:
                     "- Larger discs cannot be placed above the smaller ones",
                     "- Use UNDO to revert moves",
                     "- Click SOLVE to see optimal solution",
-                    "- Minimum moves required: 2^n - 1",
-                    "Click RULES to close this window"
+                    "- Minimum moves required: 2^n - 1"
                 ], "Game Rules")
             if self.show_members:
                 self.draw_overlay([
