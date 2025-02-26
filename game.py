@@ -218,13 +218,13 @@ class Game:
                             self.game_over_fade_alpha = 0
                         elif self.restart_button_rect.collidepoint(event.pos):
                             self.restart_button_clicked = True
-                            if not self.solving:
+                            if all(len(peg.discs) == 0 for peg in self.pegs[:-1]):
+                                self.solving= False
                                 self.reset_game()
                             else:
                                 self.warning_message = "Cannot reset during solving!"
                             continue
-                        elif self.game_outcome:
-                            continue
+      
                         elif self.undo_button_rect.collidepoint(event.pos):
                             self.undo_button_clicked = True
                             self.undo_move()
@@ -234,7 +234,7 @@ class Game:
                         elif self.slide_button_rect.collidepoint(event.pos):
                             self.show_slides = True
                             self.current_slide = 0 
-                        elif not self.solving:
+                        elif not self.solving and not self.game_outcome:
                             for peg in self.pegs:
                                 top_disc = peg.get_top_disc()
                                 if top_disc:
