@@ -41,13 +41,19 @@ IMAGE_PATH = [
     "assets/Cloud2.png",
     "assets/Cloud3.png",
     "assets/Cloud4.png",
+    "assets/Cloud5.png",
+    "assets/Cloud1.png",
+    "assets/Cloud2.png",
+    "assets/Cloud3.png",
+    "assets/Cloud4.png",
     "assets/Cloud5.png"
 ]
 
 
 SLIDE_BUTTON_IMAGE = "assets/slide.png" 
 X_BUTTON_IMAGE = "assets/x.png"       
-NEXT_SLIDE_BUTTON_IMAGE = "assets/next.png" 
+RIGHT_SLIDE = "assets/right.png" 
+LEFT_SLIDE = "assets/left.png" 
 HELP_IMAGES = [
      "assets/slide1.png",
      "assets/slide2.png",
