@@ -218,14 +218,19 @@ class Game:
                             self.game_over_fade_alpha = 0
                         elif self.restart_button_rect.collidepoint(event.pos):
                             self.restart_button_clicked = True
-                            if all(len(peg.discs) == 0 for peg in self.pegs[:-1]):
+
+                            if all(len(peg.discs) == 0 for peg in self.pegs[:-1] ):
                                 self.solving= False
                                 self.reset_game()
+                            if not self.solving:
+                                self.reset_game()
                             else:
-                                self.warning_message = "Cannot reset during solving!"
+                                self.warning_message = "Any kind of action that cause the disc to move is not allowed during the solving process"
                             continue
       
                         elif self.undo_button_rect.collidepoint(event.pos):
+                            if self.solving:
+                                self.warning_message = "Any kind of action that cause the disc to move is not allowed during the solving process"
                             self.undo_button_clicked = True
                             self.undo_move()
                         elif self.solve_button_rect.collidepoint(event.pos):  
@@ -270,9 +275,8 @@ class Game:
  
 
     def start_solving(self):
-        if all(len(peg.discs) == 0 for peg in self.pegs[:-1]):
-            self.solving= False
-        elif all(len(peg.discs) == 0 for peg in self.pegs[1:]):
+
+        if all(len(peg.discs) == 0 for peg in self.pegs[1:]):
             self.solution_moves = []
             self.generate_solution()
             self.current_move = 0
@@ -297,11 +301,9 @@ class Game:
     def execute_next_move(self):
         current_time = pygame.time.get_ticks()
     
-        # If we're in the middle of moving a disc, continue the animation
         if self.moving_disc:
 
             if self.move_state == 'lifting':
-                # Lift the disc up
                 if self.moving_disc.pos[1] > self.move_float_y:
                     self.moving_disc.pos[1] -= DISC_FLOAT_SPEED
                 else:
@@ -309,7 +311,6 @@ class Game:
                     self.move_state = 'moving'
                 
             elif self.move_state == 'moving':
-                # Move horizontally
                 dx = self.move_target_x - self.moving_disc.pos[0]
                 if abs(dx) > DISC_MOVE_SPEED:
                     self.moving_disc.pos[0] += DISC_MOVE_SPEED if dx > 0 else -DISC_MOVE_SPEED
@@ -318,7 +319,6 @@ class Game:
                     self.move_state = 'dropping'
                 
             elif self.move_state == 'dropping':
-                # Drop down
                 if self.moving_disc.pos[1] < self.moving_disc.target_y:
                     self.moving_disc.pos[1] += DISC_FLOAT_SPEED
                 else:
@@ -328,7 +328,6 @@ class Game:
                     self.current_move += 1
                     self.last_move_time = current_time
     
-        # If we're not currently moving a disc and it's time for the next move
         elif self.current_move < len(self.solution_moves) and current_time - self.last_move_time >= self.move_delay:
             source_peg_index, target_peg_index = self.solution_moves[self.current_move]
             source_peg = self.pegs[source_peg_index]
@@ -336,21 +335,17 @@ class Game:
 
             disc = source_peg.get_top_disc()
             if disc:
-                # Initialize the movement animation
                 source_peg.remove_disc(disc)
                 disc.peg_x = target_peg.x
             
-                # Set up animation parameters
                 stack_height = len(target_peg.discs)
                 disc.target_y = GROUND_Y - (stack_height * 15)
-                self.move_float_y = GROUND_Y - DISC_FLOAT_HEIGHT  # Float height
+                self.move_float_y = GROUND_Y - DISC_FLOAT_HEIGHT  
                 self.move_target_x = target_peg.x - disc.image.get_width() // 2 + 19
             
-                # Start the animation in 'lifting' state
                 self.moving_disc = disc
                 self.move_state = 'lifting'
             
-                # Add disc to target peg (it will visually move there)
                 target_peg.add_disc(disc) 
 
     def undo_move(self):
@@ -428,7 +423,6 @@ class Game:
             self.screen.blit(text_surface, text_rect)
 
     def fade_out_effect(self):
-        """Create a fade-out effect when starting the game."""
         if self.fading_out:
             fade_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
             fade_surface.fill((0, 0, 0))
@@ -475,7 +469,7 @@ class Game:
             if self.show_rules:
                 self.draw_overlay([
                     "How to Play:",
-                    "- Move all discs to the last peg in ascending order",
+                    "- Move all discs to the last peg in descending order",
                     "- Larger discs cannot be placed above the smaller ones",
                     "- Use UNDO to revert moves",
                     "- Click SOLVE to see optimal solution",
@@ -490,8 +484,7 @@ class Game:
                                    "Miceil  Placencia",
                                    "Tristhan Rodimo",
                                    "Noriel Felipe Jr.",
-                                   "Andrei Canoza",
-                                   "Jayson Tatum"], "The Project was Designed by:")
+                                   "Andrei Canoza"], "The Project was Designed by:")
             if self.show_rules or self.show_members:
                 if self.overlay_x_rect.collidepoint(mouse_pos):
                     scaled_x = pygame.transform.scale(self.x_button, (24, 24))

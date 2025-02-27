@@ -1,17 +1,16 @@
 SCREEN_WIDTH = 1200
 SCREEN_HEIGHT = 800 
 GROUND_Y = 590 
-DISC_MOVE_SPEED = 10  # Speed for horizontal movement
-DISC_FLOAT_HEIGHT = 200  # How high discs float during solving
-DISC_FLOAT_SPEED = 9  # Speed for vertical movement
-
+DISC_MOVE_SPEED = 10 
+DISC_FLOAT_HEIGHT = 200  
+DISC_FLOAT_SPEED = 9  
 PEG_POSITIONS = [345, 600, 850] 
  
 DISC_IMAGE = { 
      
     #5: "assets/5.png", 
     #4: "assets/4.png", 
-    #3: "assets/3.png", 
+    3: "assets/3.png", 
     2: "assets/2.png", 
     1: "assets/1.png", 
 } 
@@ -28,7 +27,7 @@ level=[]
  
 WARNING_COLOR = (255, 0, 0) 
 WARNING_FONT_SIZE = 30 
-WARNING_POSITION = (250, 250) 
+WARNING_POSITION = (200, 250) 
  
 PLAY_BUTTON_IMAGE = "assets/play_button.png" 
 RULES_BUTTON_IMAGE = "assets/rules_button.png"
@@ -68,9 +67,7 @@ HELP_IMAGES = [
      "assets/slide8.png",
      "assets/slide9.png",
      "assets/slide10.png",
-     "assets/slide11.png",
-     "assets/slide12.png",
-     "assets/slide13.png",
+     "assets/slide11.png"
 
    
 ]
