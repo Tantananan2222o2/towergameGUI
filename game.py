@@ -24,9 +24,6 @@ class Game:
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         pygame.display.set_caption('Tower of Hanoi')
         self.clock = pygame.time.Clock()
-        pygame.mixer.music.load("assets/bg_music.mp3")  
-        pygame.mixer.music.set_volume(0.0) 
-        pygame.mixer.music.play(-1) 
         self.bg = pygame.transform.scale(pygame.image.load("assets/toh_bg.jpg"), (SCREEN_WIDTH, SCREEN_HEIGHT))
 
       
@@ -108,6 +105,12 @@ class Game:
         self.next_slide_button_rect = self.next_slide_button.get_rect(bottomright=(SCREEN_WIDTH - 150, SCREEN_HEIGHT - 100))  
         self.prev_slide_button = pygame.transform.scale(pygame.image.load(LEFT_SLIDE), (40,40))
         self.prev_slide_button_rect = self.prev_slide_button.get_rect(bottomright=(SCREEN_WIDTH - 1000, SCREEN_HEIGHT - 100))  
+
+        self.default_cursor = pygame.transform.scale(pygame.image.load("assets/default_cursor.png"), (32, 32))
+        self.button_cursor = pygame.transform.scale(pygame.image.load("assets/button_cursor.png"), (32, 32))
+        self.current_cursor = self.default_cursor
+        self.cursor_offset = (0, 0)
+        pygame.mouse.set_visible(False)
         
         self.help_images = [pygame.transform.scale(pygame.image.load(path), (int(SCREEN_WIDTH * 0.8), int(SCREEN_HEIGHT * 0.8))) for path in HELP_IMAGES] 
         
@@ -129,6 +132,43 @@ class Game:
         self.move_float_y = None
 
 
+
+    def update_cursor(self, mouse_pos):
+        # Default to the default cursor
+        self.current_cursor = self.default_cursor
+    
+        # Check if mouse is over any button
+        if not self.game_started:
+            # Menu screen buttons
+            if self.play_button_rect.collidepoint(mouse_pos):
+                self.current_cursor = self.button_cursor
+            elif self.rules_button_rect.collidepoint(mouse_pos):
+                self.current_cursor = self.button_cursor
+            elif self.members_button_rect.collidepoint(mouse_pos):
+                self.current_cursor = self.button_cursor
+            elif (self.show_rules or self.show_members) and self.overlay_x_rect.collidepoint(mouse_pos):
+                self.current_cursor = self.button_cursor
+        else:
+            # Game screen buttons
+            if self.undo_button_rect.collidepoint(mouse_pos):
+                self.current_cursor = self.button_cursor
+            elif self.solve_button_rect.collidepoint(mouse_pos):
+                self.current_cursor = self.button_cursor
+            elif self.restart_button_rect.collidepoint(mouse_pos):
+                self.current_cursor = self.button_cursor
+            elif self.menu_button_rect.collidepoint(mouse_pos):
+                self.current_cursor = self.button_cursor
+            elif self.slide_button_rect.collidepoint(mouse_pos):
+                self.current_cursor = self.button_cursor
+        
+            # If showing slides, check slide navigation buttons
+            if self.show_slides:
+                if self.x_button_rect.collidepoint(mouse_pos):
+                    self.current_cursor = self.button_cursor
+                elif self.next_slide_button_rect.collidepoint(mouse_pos):
+                    self.current_cursor = self.button_cursor
+                elif self.prev_slide_button_rect.collidepoint(mouse_pos):
+                    self.current_cursor = self.button_cursor
 
     def reset_game(self):
 
@@ -389,6 +429,9 @@ class Game:
                 self.game_over_fade = True
             if self.game_over_fade and self.game_over_fade_alpha < 200:
                 self.game_over_fade_alpha += 2
+
+        mouse_pos = pygame.mouse.get_pos()
+        self.update_cursor(mouse_pos)
    
         self.logo_scale += self.scale_speed 
         if self.logo_scale >= self.max_scale or self.logo_scale <= self.min_scale:
@@ -586,6 +629,9 @@ class Game:
                 self.screen.blit(scaled_restart, self.restart_button_rect.topleft)
             else:
                 self.screen.blit(self.restart_button, self.restart_button_rect.topleft)
+        mouse_pos = pygame.mouse.get_pos()
+        cursor_pos = (mouse_pos[0] - self.cursor_offset[0], mouse_pos[1] - self.cursor_offset[1])
+        self.screen.blit(self.current_cursor, cursor_pos)
         self.draw_metallic()
         pygame.display.update()
 
